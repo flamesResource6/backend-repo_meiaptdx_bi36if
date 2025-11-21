@@ -11,38 +11,31 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
-# Example schemas (replace with your own):
 
-class User(BaseModel):
+class Consultation(BaseModel):
+    """Consultation requests from the Contact page.
+    Collection name: "consultation"
     """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    first_name: str = Field(..., min_length=1, max_length=100, description="Visitor first name")
+    last_name: str = Field(..., min_length=1, max_length=100, description="Visitor last name")
+    company: Optional[str] = Field(None, max_length=150, description="Company name (optional)")
+    email: EmailStr = Field(..., description="Valid email address")
+    country_code: str = Field(..., min_length=1, max_length=5, description="E.164 country code like +1, +44")
+    phone_number: str = Field(..., min_length=4, max_length=20, description="Phone number without country code")
+    message: Optional[str] = Field(None, max_length=2000, description="Optional message")
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "first_name": "Aisha",
+                "last_name": "Khan",
+                "company": "DataNova AI",
+                "email": "aisha.khan@example.com",
+                "country_code": "+65",
+                "phone_number": "81234567",
+                "message": "Looking for a proof-of-concept on demand forecasting with our retail data."
+            }
+        }
